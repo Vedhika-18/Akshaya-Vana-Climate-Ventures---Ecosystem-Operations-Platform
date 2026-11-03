@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { asyncHandler } from './utils/asyncHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { apiRouter } from './routes/index.js';
 
 export const app = express();
 
@@ -11,6 +12,8 @@ app.use(helmet());
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(morgan('combined'));
+
+app.use('/api', apiRouter);
 
 app.get('/api/health', asyncHandler(async (req, res) => {
   res.json({ status: 'ok' });
