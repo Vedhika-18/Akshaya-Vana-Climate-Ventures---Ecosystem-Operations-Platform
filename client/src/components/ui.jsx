@@ -16,7 +16,7 @@ export function Select({ label, id, children, ...props }) {
 export function Card({ children, className = '' }) { return <section className={`card p-5 ${className}`}>{children}</section>; }
 export function ProgressBar({ value = 0 }) { return <div className="h-2 overflow-hidden rounded-full bg-surface-2"><div className="h-full rounded-full bg-gradient-to-r from-primary to-gold transition-all" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} /></div>; }
 export function StatCard({ label, value, progress }) { return <Card><p className="text-sm text-muted">{label}</p><p className="mt-3 font-mono text-3xl text-white">{value}</p>{progress !== undefined && <div className="mt-4"><ProgressBar value={progress} /></div>}</Card>; }
-export function Badge({ children, tone = 'green' }) { return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${tone === 'gold' ? 'bg-gold/15 text-gold' : 'bg-primary/15 text-primary'}`}>{children}</span>; }
+export function Badge({ children, tone = 'green' }) { const tones = { gold: 'bg-gold/15 text-gold', red: 'bg-red-500/15 text-red-300', green: 'bg-primary/15 text-primary' }; return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${tones[tone] ?? tones.green}`}>{children}</span>; }
 export function EyebrowPill({ children }) { return <span className="eyebrow">{children}</span>; }
 export function Skeleton({ className = '' }) { return <div className={`animate-pulse rounded-lg bg-surface-2 ${className}`} aria-hidden="true" />; }
 export function EmptyState({ title, children }) { return <Card className="py-12 text-center"><p className="text-lg font-semibold text-white">{title}</p>{children && <p className="mt-2 text-sm text-muted">{children}</p>}</Card>; }

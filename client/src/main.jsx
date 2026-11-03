@@ -13,9 +13,10 @@ import { ToastProvider } from './context/ToastContext';
 import { ProtectedRoute, RoleGuard } from './components/guards';
 import AppShell from './components/AppShell';
 import { Login, Dashboard, Placeholder, NotFound } from './pages';
+import { Projects, NewProject, EditProject, ProjectDetail } from './projectPages';
 
 function App() {
-  return <AuthProvider><ToastProvider><Routes><Route path="/login" element={<Login />} /><Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}><Route path="/" element={<Dashboard />} /><Route path="/projects" element={<Placeholder title="Projects" />} /><Route path="/projects/new" element={<RoleGuard roles={['ADMIN', 'MANAGER']}><Placeholder title="New project" /></RoleGuard>} /><Route path="/projects/:id" element={<Placeholder title="Project workspace" />} /><Route path="/projects/:id/edit" element={<RoleGuard roles={['ADMIN', 'MANAGER']}><Placeholder title="Edit project" /></RoleGuard>} /><Route path="/users" element={<RoleGuard roles={['ADMIN']}><Placeholder title="Users" /></RoleGuard>} /></Route><Route path="/404" element={<NotFound />} /><Route path="*" element={<Navigate to="/404" replace />} /></Routes></ToastProvider></AuthProvider>;
+  return <AuthProvider><ToastProvider><Routes><Route path="/login" element={<Login />} /><Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}><Route path="/" element={<Dashboard />} /><Route path="/projects" element={<Projects />} /><Route path="/projects/new" element={<RoleGuard roles={['ADMIN', 'MANAGER']}><NewProject /></RoleGuard>} /><Route path="/projects/:id" element={<ProjectDetail />} /><Route path="/projects/:id/edit" element={<RoleGuard roles={['ADMIN', 'MANAGER']}><EditProject /></RoleGuard>} /><Route path="/users" element={<RoleGuard roles={['ADMIN']}><Placeholder title="Users" /></RoleGuard>} /></Route><Route path="/404" element={<NotFound />} /><Route path="*" element={<Navigate to="/404" replace />} /></Routes></ToastProvider></AuthProvider>;
 }
 
 createRoot(document.getElementById('root')).render(
