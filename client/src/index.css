@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  color: #a8b0a8;
+  background: #0a1a0a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent;
+  }
+  .eyebrow {
+    @apply inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary;
+  }
+  .btn-glow {
+    @apply rounded-full bg-gradient-to-r from-primary to-primary-deep px-5 py-2.5 font-semibold text-forest shadow-glow transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-forest disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply rounded-full border border-border bg-surface-2 px-5 py-2.5 font-semibold text-muted transition hover:border-primary/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+  .btn-outline {
+    @apply rounded-full border border-primary/60 px-5 py-2.5 font-semibold text-primary transition hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+  .card {
+    @apply rounded-2xl border border-border bg-surface;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }
