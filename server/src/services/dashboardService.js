@@ -107,9 +107,10 @@ async function dashboardData(range = 'all', includeActivity = true) {
     };
   });
 
-  const projectProgressValues = projectProgress.map(({ project, progress }) => ({
+  const projectProgressValues = projectProgress.map(({ project, progress, latestEntry }) => ({
     project,
     progress,
+    latestEntry,
     expected: expectedProgress(project, now),
     health: getScheduleHealth(project, progress),
   }));

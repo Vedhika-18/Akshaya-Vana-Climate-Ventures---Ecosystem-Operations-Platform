@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "install-all": "npm install --prefix server && npm install --prefix client",
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "build": "npm run build --prefix client && npm run prisma:generate --prefix server && npm run prisma:migrate:deploy --prefix server",
     "start": "npm run start --prefix server",
@@ -15,5 +15,8 @@
   "dependencies": {
     "@neon/config": "^1.10.0",
     "@neon/env": "^1.6.8"
+  },
+  "engines": {
+    "node": ">=20.0.0 <25"
   }
 }
