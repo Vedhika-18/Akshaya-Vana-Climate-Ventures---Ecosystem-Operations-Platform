@@ -8,7 +8,13 @@ import { apiRouter } from './routes/index.js';
 
 export const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      'img-src': ["'self'", 'data:', 'https://*.basemaps.cartocdn.com'],
+    },
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(morgan('combined'));

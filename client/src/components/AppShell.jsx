@@ -16,7 +16,7 @@ export default function AppShell() {
   const signOut = async () => { await logout(); navigate('/login'); };
   return <div className="min-h-screen bg-forest text-muted">
     <aside className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-border bg-surface p-6 transition-transform lg:translate-x-0 ${drawer ? 'translate-x-0' : '-translate-x-full'}`} aria-label="Sidebar">
-      <div className="flex items-center gap-3"><img src="/logo.png" alt="Akshaya Vana" className="h-10 w-10 object-contain" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.nextElementSibling.style.display = 'inline'; }} /><Leaf className="hidden" /><div><p className="font-display text-lg text-white">Akshaya Vana</p><p className="text-[10px] uppercase tracking-widest text-faint">Climate operations</p></div></div>
+      <div className="flex items-center gap-3"><Leaf /><div><p className="font-display text-lg text-white">Akshaya Vana</p><p className="text-[10px] uppercase tracking-widest text-faint">Climate operations</p></div></div>
       <div className="mt-12">{nav}</div>
       <div className="absolute bottom-6 left-6 right-6 rounded-xl border border-border bg-surface-2 p-4"><p className="text-xs text-faint">Workspace</p><p className="mt-1 truncate text-sm text-white">{user?.name}</p><p className="mt-1 text-xs text-primary">{roleLabels[user?.role]}</p></div>
     </aside>
