@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  FIELD_OFFICER
+  VIEWER
+}
+
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectCategory {
+  AGROFORESTRY
+  CARBON_FOREST
+  BIODIVERSITY
+  WATERSHED
+  COMMUNITY_LIVELIHOODS
+}
+
+enum Landscape {
+  WESTERN_GHATS
+  CENTRAL_INDIA
+  EASTERN_HIMALAYAS
+  OTHER
+}
+
+enum CarbonStandard {
+  VERRA_VCS
+  GOLD_STANDARD
+  PLAN_VIVO
+  NONE
+}
+
+enum LifecycleStage {
+  LAND_RESTORATION
+  MONITORING
+  VERIFICATION
+  CREDIT_ISSUANCE
+  CORPORATE_OFFSET
+}
+
+enum MetricKey {
+  TREES_PLANTED
+  HECTARES_RESTORED
+  CO2_CAPTURED
+  SPECIES_PROTECTED
+  HOUSEHOLDS_IMPACTED
+  BIODIVERSITY_SCORE
+  CUSTOM
+}
+
+enum Aggregation {
+  SUM
+  LATEST
+}
+
+enum EntryType {
+  PROGRESS
+  CORRECTION
+}
+
+enum EntrySource {
+  FIELD_SURVEY
+  DRONE
+  SATELLITE
+  SOIL_SAMPLE
+  COMMUNITY_REPORT
+  MANUAL
+}
+
+model User {
+  id              String         @id @default(cuid())
+  name            String
+  email           String         @unique
+  passwordHash    String
+  role            Role
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  managedProjects Project[]       @relation("ProjectManager")
+  memberships     ProjectMember[]
+  progressEntries ProgressEntry[] @relation("EntryCreator")
+  activityLogs    ActivityLog[]
+
+  @@index([role])
+}
+
+model Project {
+  id             String          @id @default(cuid())
+  code           String          @unique
+  name           String
+  description    String?
+  category       ProjectCategory
+  status         ProjectStatus
+  landscape      Landscape
+  locationName   String
+  state          String
+  latitude       Float?
+  longitude      Float?
+  startDate      DateTime
+  endDate        DateTime
+  budget         Decimal         @db.Decimal(14, 2)
+  carbonStandard CarbonStandard
+  lifecycleStage LifecycleStage
+  isFlagship     Boolean         @default(false)
+  sdgs           Int[]
+  coverImageUrl  String?
+  managerId      String?
+  archivedAt     DateTime?
+  version        Int             @default(1)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  manager        User?           @relation("ProjectManager", fields: [managerId], references: [id])
+  members        ProjectMember[]
+  goals          ProjectGoal[]
+  activityLogs   ActivityLog[]
+
+  @@index([status])
+  @@index([category])
+  @@index([landscape])
+  @@index([lifecycleStage])
+  @@index([managerId])
+}
+
+model ProjectMember {
+  projectId String
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@index([userId])
+}
+
+model ProjectGoal {
+  id           String         @id @default(cuid())
+  projectId    String
+  metricKey    MetricKey
+  label        String
+  unit         String
+  targetValue  Float
+  aggregation  Aggregation    @default(SUM)
+  project      Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  entries      ProgressEntry[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([projectId])
+  @@index([metricKey])
+}
+
+model ProgressEntry {
+  id          String      @id @default(cuid())
+  goalId      String
+  value       Float
+  entryDate   DateTime
+  note       String?
+  type        EntryType   @default(PROGRESS)
+  source      EntrySource
+  createdById String
+  createdAt   DateTime    @default(now())
+  goal        ProjectGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  createdBy   User        @relation("EntryCreator", fields: [createdById], references: [id])
+
+  @@index([goalId])
+  @@index([createdById])
+  @@index([entryDate])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  entity    String
+  entityId  String
+  projectId String?
+  action    String
+  before    Json?
+  after     Json?
+  userId    String
+  createdAt DateTime @default(now())
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
