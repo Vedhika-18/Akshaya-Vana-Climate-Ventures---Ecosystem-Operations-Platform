@@ -85,7 +85,7 @@ async function dashboardData(range = 'all', includeActivity = true) {
       const latestReadings = goals.map((goal) => goal.entries[0]?.value).filter((value) => value !== undefined);
       achieved = latestReadings.length
         ? latestReadings.reduce((sum, value) => sum + value, 0) / latestReadings.length
-        : 0;
+        : null;
       target = 100;
     } else {
       achieved = goals.reduce((sum, goal) => sum + goalCurrent(goal), 0);
@@ -94,7 +94,7 @@ async function dashboardData(range = 'all', includeActivity = true) {
     const addedInRange = metricKey === 'BIODIVERSITY_SCORE'
       ? 0
       : goals.reduce((sum, goal) => sum + goal.entries
-        .filter((entry) => !start || new Date(entry.createdAt) >= start)
+        .filter((entry) => !start || new Date(entry.entryDate) >= start)
         .reduce((entrySum, entry) => entrySum + entry.value, 0), 0);
     return {
       metricKey,
@@ -123,14 +123,14 @@ async function dashboardData(range = 'all', includeActivity = true) {
     const entries = metricKey === 'BIODIVERSITY_SCORE' ? [] : allGoals
         .filter((goal) => goal.metricKey === metricKey)
         .flatMap((goal) => goal.entries)
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        .sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
     const firstMonth = `${monthlyKeys[0]}-01T00:00:00.000Z`;
     let cumulative = entries
-      .filter((entry) => new Date(entry.createdAt) < new Date(firstMonth))
+      .filter((entry) => new Date(entry.entryDate) < new Date(firstMonth))
       .reduce((sum, entry) => sum + entry.value, 0);
     return [metricKey, monthlyKeys.map((month) => {
       const added = entries
-        .filter((entry) => monthKey(new Date(entry.createdAt)) === month)
+        .filter((entry) => monthKey(new Date(entry.entryDate)) === month)
         .reduce((sum, entry) => sum + entry.value, 0);
       cumulative += added;
       return { month, added, cumulative };

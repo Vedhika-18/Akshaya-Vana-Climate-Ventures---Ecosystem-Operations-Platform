@@ -37,6 +37,7 @@ const projects = [
     standard: 'GOLD_STANDARD', lifecycleStage: 'LAND_RESTORATION', manager: 'manager2',
     start: '2025-01-01', end: '2027-12-31', budget: 24500000, metric: 'SPECIES_PROTECTED',
     label: 'Species protected', unit: 'species', target: 80, values: [4, 5, 6, 7, 8, 9, 10],
+    additionalGoals: [{ metric: 'BIODIVERSITY_SCORE', label: 'Biodiversity score', unit: 'score /100', target: 100, values: [72, 78] }],
     sdgs: [6, 13, 14, 15], flagship: true,
   },
   {
@@ -84,7 +85,7 @@ const projects = [
     status: 'PLANNED', landscape: 'EASTERN_HIMALAYAS', locationName: 'Gangtok', state: 'Sikkim',
     standard: 'NONE', lifecycleStage: 'LAND_RESTORATION', manager: 'manager2',
     start: '2027-01-01', end: '2029-12-31', budget: 7600000, metric: 'BIODIVERSITY_SCORE',
-    label: 'Biodiversity score', unit: 'score /100', target: 100, values: [], sdgs: [13, 15],
+    label: 'Biodiversity score', unit: 'score /100', target: 100, values: [62, 68, 71], sdgs: [13, 15],
   },
   {
     code: 'AV-2023-010', name: 'Bastar Bamboo Livelihoods', category: 'COMMUNITY_LIVELIHOODS',
@@ -205,7 +206,11 @@ async function main() {
 
     for (const [entryIndex, value] of definition.values.entries()) {
       const entryDate = new Date(now);
-      entryDate.setUTCMonth(entryDate.getUTCMonth() - (definition.values.length - entryIndex));
+      if (definition.code !== 'AV-2023-004' && entryIndex === definition.values.length - 1 && index < 9) {
+        entryDate.setUTCDate(entryDate.getUTCDate() - (index + 1));
+      } else {
+        entryDate.setUTCMonth(entryDate.getUTCMonth() - ((definition.values.length - entryIndex) * 3));
+      }
       const entry = await prisma.progressEntry.create({
         data: {
           goalId: goal.id,
@@ -228,6 +233,34 @@ async function main() {
           userId: entry.createdById,
         },
       });
+    }
+
+    for (const additional of definition.additionalGoals ?? []) {
+      const additionalGoal = await prisma.projectGoal.create({
+        data: {
+          projectId: project.id,
+          metricKey: additional.metric,
+          label: additional.label,
+          unit: additional.unit,
+          targetValue: additional.target,
+          aggregation: additional.metric === 'BIODIVERSITY_SCORE' ? 'LATEST' : 'SUM',
+        },
+      });
+      for (const [entryIndex, value] of additional.values.entries()) {
+        const entryDate = new Date(now);
+        entryDate.setUTCDate(entryDate.getUTCDate() - (entryIndex + 1));
+        await prisma.progressEntry.create({
+          data: {
+            goalId: additionalGoal.id,
+            value,
+            entryDate,
+            note: `Synthetic demo field update ${entryIndex + 1}.`,
+            type: 'PROGRESS',
+            source: 'FIELD_SURVEY',
+            createdById: userIds[definition.manager],
+          },
+        });
+      }
     }
   }
 
