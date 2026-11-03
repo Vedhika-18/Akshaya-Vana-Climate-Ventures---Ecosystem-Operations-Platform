@@ -5,6 +5,7 @@ import {
   create, createGoal, createMember, detail, editGoal, lifecycle, list, remove, removeGoal, removeMember, update,
 } from '../controllers/project.js';
 import { authenticate } from '../middleware/auth.js';
+import { createEntry, listEntries, setTotal } from '../controllers/progress.js';
 
 export const apiRouter = Router();
 
@@ -23,5 +24,8 @@ apiRouter.put('/projects/:id/lifecycle', authenticate, lifecycle);
 apiRouter.post('/projects/:id/goals', authenticate, createGoal);
 apiRouter.put('/goals/:goalId', authenticate, editGoal);
 apiRouter.delete('/goals/:goalId', authenticate, removeGoal);
+apiRouter.post('/goals/:goalId/entries', authenticate, createEntry);
+apiRouter.post('/goals/:goalId/set-total', authenticate, setTotal);
+apiRouter.get('/goals/:goalId/entries', authenticate, listEntries);
 apiRouter.post('/projects/:id/members', authenticate, createMember);
 apiRouter.delete('/projects/:id/members/:userId', authenticate, removeMember);
