@@ -6,6 +6,8 @@ import {
 } from '../controllers/project.js';
 import { authenticate } from '../middleware/auth.js';
 import { createEntry, listEntries, setTotal } from '../controllers/progress.js';
+import { dashboard, projectRecent, publicImpact, recent } from '../controllers/dashboard.js';
+import { publicRateLimit } from '../middleware/publicRateLimit.js';
 
 export const apiRouter = Router();
 
@@ -27,5 +29,9 @@ apiRouter.delete('/goals/:goalId', authenticate, removeGoal);
 apiRouter.post('/goals/:goalId/entries', authenticate, createEntry);
 apiRouter.post('/goals/:goalId/set-total', authenticate, setTotal);
 apiRouter.get('/goals/:goalId/entries', authenticate, listEntries);
+apiRouter.get('/dashboard', authenticate, dashboard);
+apiRouter.get('/activity/recent', authenticate, recent);
+apiRouter.get('/projects/:id/activity', authenticate, projectRecent);
+apiRouter.get('/public/impact', publicRateLimit, publicImpact);
 apiRouter.post('/projects/:id/members', authenticate, createMember);
 apiRouter.delete('/projects/:id/members/:userId', authenticate, removeMember);

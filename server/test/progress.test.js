@@ -182,3 +182,40 @@ describe('Phase 4 progress entries', () => {
     expect(response.status).toBe(403);
   });
 });
+
+describe('Phase 5 dashboard and public impact', () => {
+  it('reports entry and correction changes in dashboard totals', async () => {
+    const cookie = cookieFor(users.manager);
+    const before = await authRequest('get', '/api/dashboard', cookie);
+    expect(before.status).toBe(200);
+    const beforeTrees = before.body.impact.find((metric) => metric.metricKey === 'TREES_PLANTED').achieved;
+
+    const entry = await authRequest('post', `/api/goals/${goal.id}/entries`, cookie)
+      .send({ value: 17, entryDate: '2026-01-02', source: 'MANUAL' });
+    expect(entry.status).toBe(201);
+    const afterEntry = await authRequest('get', '/api/dashboard', cookie);
+    const afterTrees = afterEntry.body.impact.find((metric) => metric.metricKey === 'TREES_PLANTED').achieved;
+    expect(afterTrees - beforeTrees).toBe(17);
+
+    const correction = await authRequest('post', `/api/goals/${goal.id}/set-total`, cookie)
+      .send({ newTotal: 1400, note: 'Dashboard correction verification' });
+    expect(correction.status).toBe(200);
+    const afterCorrection = await authRequest('get', '/api/dashboard', cookie);
+    const correctedTrees = afterCorrection.body.impact.find((metric) => metric.metricKey === 'TREES_PLANTED').achieved;
+    expect(correctedTrees - afterTrees).toBe(83);
+  });
+
+  it('rejects invalid ranges and requires authentication', async () => {
+    const cookie = cookieFor(users.manager);
+    expect((await authRequest('get', '/api/dashboard?range=bad', cookie)).status).toBe(400);
+    expect((await request(app).get('/api/dashboard')).status).toBe(401);
+  });
+
+  it('serves aggregate public impact without authentication', async () => {
+    const response = await request(app).get('/api/public/impact');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('trees');
+    expect(response.body).not.toHaveProperty('budget');
+    expect(JSON.stringify(response.body)).not.toMatch(/email|user|budget/i);
+  });
+});
